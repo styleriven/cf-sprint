@@ -1,0 +1,55 @@
+name = "app"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV: shortcode -> URL gốc (Day 1)
+[[kv_namespaces]]
+binding = "LINKS"
+id = "00f2aee469a0412b9732058846947cb5"
+
+# KV: lưu todo (Day 2 — đã migrate sang D1, giữ binding để code cũ không lỗi)
+[[kv_namespaces]]
+binding = "TODOS"
+id = "469eab1cc76244a0b33a9b3e577d1f88"
+
+# D1: SQL database (Day 3)
+[[d1_databases]]
+binding = "DB"
+database_name = "cf-sprint"
+database_id = "3fadfb82-64d5-4cb3-8556-67f691708eb4"
+migrations_dir = "drizzle"
+
+# Durable Object: ChatRoom (Day 4)
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatRoom"]
+
+# Queue: post processing pipeline (Day 5)
+[[queues.producers]]
+binding = "POST_QUEUE"
+queue = "cf-sprint-posts"
+
+[[queues.consumers]]
+queue = "cf-sprint-posts"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "cf-sprint-posts-dlq"
+
+# Workflow: post publish flow (Day 5)
+[[workflows]]
+name = "post-publish"
+binding = "PUBLISH_FLOW"
+class_name = "PostPublishFlow"
+
+# Cron Triggers (Day 5)
+[triggers]
+crons = ["*/15 * * * *"]
+
+[observability]
+enabled = true
